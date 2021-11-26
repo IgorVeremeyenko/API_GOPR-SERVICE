@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace API_GOPR_SERVICE.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    //[ApiController]
     public class ClientsDevicesController : ControllerBase
     {
         private readonly GoprServiceContext _context;
@@ -67,16 +67,18 @@ namespace API_GOPR_SERVICE.Controllers
 
         // POST: api/ClientsDevices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
         public async Task<ActionResult<ClientsDevice>> PostClientsDevice(
-            ClientsDevice clientsDevice, string phoneNumber, string deviceName)
-        {
-
+            [FromBody]
+            ClientsDevice clientsDevice, Client client, Device device)
+        {           
            
+            clientsDevice.Client = client;
+            clientsDevice.Device = device;
+            clientsDevice.ClientId = client.Id;
+            clientsDevice.DeviceId= device.Id;
+            clientsDevice.Device.DateToAdd = new DateTime();
             _context.ClientsDevices.Add(clientsDevice);
             await _context.SaveChangesAsync();
-
-
             return CreatedAtAction("GetClientsDevice", new { id = clientsDevice.Id }, clientsDevice);
             
 
