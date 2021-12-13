@@ -9,11 +9,16 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
-                      builder =>
-                      {
-                          builder.WithOrigins("https://localhost:7214/",
-                              "http://localhost:4200");
-                      });
+        builder =>
+        {
+            builder
+            .SetIsOriginAllowedToAllowWildcardSubdomains()
+            .WithOrigins("https://elite-service-92d53.web.app", "https://localhost:7214/", "*", "http://localhost:8080")            
+            .AllowAnyMethod()
+            .AllowCredentials()
+            .AllowAnyHeader()
+            .Build();
+        });
 });
 builder.Services.AddDbContext<GoprServiceContext>(options =>
 {

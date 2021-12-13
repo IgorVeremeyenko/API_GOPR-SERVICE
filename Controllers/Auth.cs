@@ -1,18 +1,63 @@
 ﻿using FirebaseAdmin;
 using FirebaseAdmin.Auth;
+using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Nancy.Json;
+using System.Net;
 
 namespace API_GOPR_SERVICE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class Auth : ControllerBase
     {
-        [HttpGet]
-        public async void GetAuthFirebase(string phoneNumber)
+        private string serverKey = "AAAATnQpuAw:APA91bHS5jifdFJhW81Pim6l1YHXmqz-pS_OSu9sdeKC5jAoipP6AcFIEh7ltlSm43aY9zeVNPQ_M6S23P5XMeGrEpxkYl0RV-wzUyvxeApV78Ht0bi4YaVU1nj2GBFXDN6GIU7M3S7i";
+        private string senderId = "336956340236";
+        private string webAddr = "https://fcm.googleapis.com/fcm/send";
+
+        [HttpPost("{DeviceToken}")]
+        public string SendNotification(string DeviceToken, [FromBody] string msg)
         {
+            Console.WriteLine("Device token ", DeviceToken);
+            var result = "-1";
+            var title = "From backend";
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(webAddr);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Headers.Add(string.Format("Authorization: key={0}", serverKey));
+            httpWebRequest.Headers.Add(string.Format("Sender: id={0}", senderId));
+            httpWebRequest.Method = "POST";
+
+            var payload = new
+            {
+                to = DeviceToken,
+                priority = "high",
+                content_available = true,
+                notification = new
+                {
+                    body = msg,
+                    title = title
+                },
+            };
+            var serializer = new JavaScriptSerializer();
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                string json = serializer.Serialize(payload);
+                streamWriter.Write(json);
+                streamWriter.Flush();
+            }
+            Console.WriteLine(payload);
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                result = streamReader.ReadToEnd();
+            }
+            return result;
+        }
+        /*public async void GetAuthFirebase(string phoneNumber)
+        {
+
             if(FirebaseApp.DefaultInstance is null)
             {
                 const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
@@ -23,9 +68,8 @@ namespace API_GOPR_SERVICE.Controllers
             }
             try
             {
-                UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserByPhoneNumberAsync(phoneNumber);
-                // See the UserRecord reference doc for the contents of userRecord.
-                Console.WriteLine($"Successfully fetched user data: {userRecord.Uid}");               
+
+                
 
             }
             catch (Exception)
@@ -33,7 +77,7 @@ namespace API_GOPR_SERVICE.Controllers
 
                 throw;
             }
-        }
+        }*/
         [HttpGet("all users")]
         public async void GetAllUsersFirebase()
         {
@@ -156,7 +200,7 @@ namespace API_GOPR_SERVICE.Controllers
             else
             Console.WriteLine($"Failed to delete {result.FailureCount} users.");
 
-            foreach (ErrorInfo err in result.Errors)
+            foreach (FirebaseAdmin.Auth.ErrorInfo err in result.Errors)
             {
                 Console.WriteLine($"Error #{err.Index}, reason: {err.Reason}");
             }

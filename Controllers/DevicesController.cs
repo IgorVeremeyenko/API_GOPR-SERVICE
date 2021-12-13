@@ -39,7 +39,7 @@ namespace API_GOPR_SERVICE.Controllers
         // PUT: api/Devices/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDevice(int id, Device device)
+        public async Task<IActionResult> PutDevice(int id,[FromBody] Device device)
         {
             if (id != device.Id)
             {
