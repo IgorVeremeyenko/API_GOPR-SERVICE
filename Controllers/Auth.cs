@@ -3,7 +3,8 @@ using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -40,18 +41,29 @@ namespace API_GOPR_SERVICE.Controllers
                 {
                     Title = messages.Title,
                     Body = messages.Body,
+                    ImageUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+                    
                 },
                 Android = new AndroidConfig()
                 {
+                    
                     TimeToLive = TimeSpan.FromHours(1),
                     Notification = new AndroidNotification()
                     {
                         Icon = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
                         Color = "#f45342",
-                        Sound = "\\raw\\5191_pod-zvonok.ru__.mp3",
-                        ClickAction = "https://elite-service-92d53.web.app/"
+                        Sound = "/Resourses/zvonok.mp3"
+                        
                     },
+                    Priority = Priority.High
                     
+                },
+                Webpush = new()
+                {
+                    FcmOptions = new ()
+                    {
+                        Link = "https://elite-service-92d53.web.app/"
+                    },
                 },
                 Apns = new ApnsConfig()
                 {
@@ -59,11 +71,13 @@ namespace API_GOPR_SERVICE.Controllers
                     {
                         Badge = 42,
                     },
+                    
                 },
                
                 Token = DeviceToken,
             };
-            Console.WriteLine(DeviceToken);
+            string jsonString = JsonSerializer.Serialize(message);
+            Console.WriteLine(jsonString);
             // Send a message to the device corresponding to the provided
             // registration token.
             // Response is a message ID string.
