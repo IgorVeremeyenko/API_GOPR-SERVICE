@@ -28,7 +28,7 @@ namespace API_GOPR_SERVICE.Controllers
         }
 
         // GET: api/Clients/5
-        [HttpGet("{phone number}")]
+        [HttpGet("phone")]
         public async Task<ActionResult<Client>> GetClient(string phoneNumber)
         {
             var client = await _context.Clients
@@ -79,8 +79,9 @@ namespace API_GOPR_SERVICE.Controllers
         // POST: api/Clients
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+        public async Task<ActionResult<Client>> PostClient([FromBody] Client client )
         {
+
             _context.Clients.Add(client);
             await _context.SaveChangesAsync();
 

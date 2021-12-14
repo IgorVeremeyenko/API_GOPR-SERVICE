@@ -1,104 +1,105 @@
 ﻿using FirebaseAdmin;
 using FirebaseAdmin.Auth;
+using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace API_GOPR_SERVICE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class Auth : ControllerBase
     {
-        [HttpGet]
-        public async void GetAuthFirebase(string idToken)
+        private string serverKey = "AAAATnQpuAw:APA91bHS5jifdFJhW81Pim6l1YHXmqz-pS_OSu9sdeKC5jAoipP6AcFIEh7ltlSm43aY9zeVNPQ_M6S23P5XMeGrEpxkYl0RV-wzUyvxeApV78Ht0bi4YaVU1nj2GBFXDN6GIU7M3S7i";
+        private string senderId = "336956340236";
+        private string webAddr = "https://fcm.googleapis.com/fcm/send";
+        private FirebaseMessaging messaging;
+
+        [HttpPost("{DeviceToken}")]
+        public Message SendNotification(string DeviceToken, Notification masseges)
+        {
+            if (FirebaseApp.DefaultInstance is null)
+            {               
+                var app = FirebaseApp.Create(new AppOptions() { 
+                    Credential = GoogleCredential.FromFile("C:\\Users\\Igor_Sergeyevich\\Documents\\key.json")
+                    .CreateScoped("https://www.googleapis.com/auth/firebase.messaging") 
+                });
+                messaging = FirebaseMessaging.GetMessaging(app);
+            }
+
+            Console.WriteLine("Device token ", DeviceToken);
+            return new Message
+            {
+                Token = DeviceToken,                
+                Webpush = new WebpushConfig()
+                {
+                    Notification = new WebpushNotification()
+                    {
+                        Title = masseges.Title,
+                        Body = masseges.Body,
+                        Image = masseges.ImageUrl
+
+                    }
+                }
+                
+            };
+           /* var result = "-1";
+            var title = "From backend";
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(webAddr);
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Headers.Add(string.Format("Authorization: key={0}", serverKey));
+            httpWebRequest.Headers.Add(string.Format("Sender: id={0}", senderId));
+            httpWebRequest.Method = "POST";
+            
+            var payload = new
+            {
+                to = DeviceToken,
+                priority = "high",
+                content_available = true,
+                notification = new
+                {
+                    Body = allow.msg,
+                    Title = "From backend",
+                    Action = "https://elite-service-92d53.web.app/"
+                },
+            };
+            var serializer = new JavaScriptSerializer();
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                string json = serializer.Serialize(payload);
+                streamWriter.Write(json);
+                streamWriter.Flush();
+            }
+            Console.WriteLine(payload);
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                result = streamReader.ReadToEnd();
+            }
+            Console.WriteLine(payload);
+            return result;*/
+        }
+        /*public async void GetAuthFirebase(string phoneNumber)
         {
             if(FirebaseApp.DefaultInstance is null)
             {
-                //From json file
-                /*const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\Igor_Sergeyevich\\Downloads\\service-account-file.json";
+                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
                 FirebaseApp.Create(new AppOptions()
                 {
                     Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
-                });*/
-
-                //From Google OAuth
-                FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.GetApplicationDefault(),
-                    ServiceAccountId = "firebase-adminsdk-4tf10@elite-service-92d53.iam.gserviceaccount.com",
                 });
             }
-            /* try
-             {
-                 UserRecord userRecord = await FirebaseAuth.DefaultInstance.GetUserByPhoneNumberAsync(phoneNumber);
-                 // See the UserRecord reference doc for the contents of userRecord.
-                 Console.WriteLine($"Successfully fetched user data: {userRecord}");
-
-             }
-             catch (Exception)
-             {
-
-                 throw;
-             }*/
             try
             {
-                // Verify the ID token while checking if the token is revoked by passing checkRevoked
-                // as true.
-                bool checkRevoked = true;
-                var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(
-                    idToken, checkRevoked);
-                // Token is valid and not revoked.
-                string uid = decodedToken.Uid;
-                Console.WriteLine("uid: " + uid);
+                
             }
-            catch (FirebaseAuthException ex)
+            catch (Exception)
             {
-                if (ex.AuthErrorCode == AuthErrorCode.RevokedIdToken)
-                {
-                    // Token has been revoked. Inform the user to re-authenticate or signOut() the user.
-                }
-                else
-                {
-                    // Token is invalid.
-                }
+                throw;
             }
-        }
-
-        // POST: /sessionLogin
-        [HttpPost]
-        public async Task<ActionResult> Login([FromBody] LoginRequest request)
-        {
-            // Set session expiration to 5 days.
-            var options = new SessionCookieOptions()
-            {
-                ExpiresIn = TimeSpan.FromDays(5),
-            };
-
-            try
-            {
-                // Create the session cookie. This will also verify the ID token in the process.
-                // The session cookie will have the same claims as the ID token.
-                var sessionCookie = await FirebaseAuth.DefaultInstance
-                    .CreateSessionCookieAsync(request.IdToken, options);
-
-                // Set cookie policy parameters as required.
-                var cookieOptions = new CookieOptions()
-                {
-                    Expires = DateTimeOffset.UtcNow.Add(options.ExpiresIn),
-                    HttpOnly = true,
-                    Secure = true,
-                };
-                this.Response.Cookies.Append("session", sessionCookie, cookieOptions);
-                return Ok();
-            }
-            catch (FirebaseAuthException)
-            {
-                return Unauthorized("Failed to create a session cookie");
-            }
-        }
-
-
+        }*/
         [HttpGet("all users")]
         public async void GetAllUsersFirebase()
         {
@@ -149,7 +150,7 @@ namespace API_GOPR_SERVICE.Controllers
         {
             if (FirebaseApp.DefaultInstance is null)
             {
-                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
+                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\Igor_Sergeyevich\\Documents\\key.json";
                 FirebaseApp.Create(new AppOptions()
                 {
                     Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
@@ -216,12 +217,12 @@ namespace API_GOPR_SERVICE.Controllers
                         uid2,
                         uid3,
                     });
-            if(result.SuccessCount > 0)
-            Console.WriteLine($"Successfully deleted {result.SuccessCount} users.");
+            if (result.SuccessCount > 0)
+                Console.WriteLine($"Successfully deleted {result.SuccessCount} users.");
             else
-            Console.WriteLine($"Failed to delete {result.FailureCount} users.");
+                Console.WriteLine($"Failed to delete {result.FailureCount} users.");
 
-            foreach (ErrorInfo err in result.Errors)
+            foreach (FirebaseAdmin.Auth.ErrorInfo err in result.Errors)
             {
                 Console.WriteLine($"Error #{err.Index}, reason: {err.Reason}");
             }

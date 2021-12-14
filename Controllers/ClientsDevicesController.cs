@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API_GOPR_SERVICE.Models;
-using System.Text.Json;
+using System.Data.SqlClient;
+using System.Net;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -18,12 +19,26 @@ namespace API_GOPR_SERVICE.Controllers
 
         // GET ALL BY CLIENT(phone number)
         [HttpGet]
-        public ActionResult<List<ClientsDevice>> GetClientsDevice(string phoneNumber)
+        /*public ActionResult<List<ClientsDevice>> GetClientsDevice(string phoneNumber)
         {
             var clientsDevice =  _context.ClientsDevices
                 .Include(c => c.Client)
                 .Include(d => d.Device)
                 .Where(c => c.Client.PhoneNumber == phoneNumber)
+                .ToList();
+
+            if (clientsDevice == null)
+            {
+                return NotFound();
+            }
+
+            return clientsDevice;
+        }*/
+        public ActionResult<List<ClientsDevice>> GetClientsDevice()
+        {
+            var clientsDevice = _context.ClientsDevices
+                .Include(c => c.Client)
+                .Include(d => d.Device)                
                 .ToList();
 
             if (clientsDevice == null)
@@ -67,20 +82,25 @@ namespace API_GOPR_SERVICE.Controllers
 
         // POST: api/ClientsDevices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        public async Task<ActionResult<ClientsDevice>> PostClientsDevice(
-            [FromBody]
-            ClientsDevice clientsDevice, Client client, Device device)
-        {           
-           
-            clientsDevice.Client = client;
-            clientsDevice.Device = device;
-            clientsDevice.ClientId = client.Id;
-            clientsDevice.DeviceId= device.Id;
-            clientsDevice.Device.DateToAdd = new DateTime();
-            _context.ClientsDevices.Add(clientsDevice);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetClientsDevice", new { id = clientsDevice.Id }, clientsDevice);
-            
+        [HttpPost]
+        public async Task<ActionResult<ClientsDevice>> PostClientsDevice([FromBody] ClientsDevice clientsDevice)
+        {
+            try
+            {
+                clientsDevice.Device.DateToAdd = DateTime.Now;
+                Console.WriteLine(clientsDevice.Device.DateToAdd);
+                _context.ClientsDevices.Add(clientsDevice);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction("GetClientsDevice", new { id = clientsDevice.Id }, clientsDevice);
+
+            }
+            catch (DbUpdateException exc)
+            {
+                Console.WriteLine( $"{nameof(clientsDevice)} db update error: {exc?.InnerException?.Message}");
+                
+                return null;
+            }
+
 
         }
 
