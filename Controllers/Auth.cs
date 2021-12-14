@@ -3,8 +3,7 @@ using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
-using Nancy.Json;
-using System.Net;
+
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -13,47 +12,65 @@ namespace API_GOPR_SERVICE.Controllers
 
     public class Auth : ControllerBase
     {
-        private string serverKey = "AAAATnQpuAw:APA91bHS5jifdFJhW81Pim6l1YHXmqz-pS_OSu9sdeKC5jAoipP6AcFIEh7ltlSm43aY9zeVNPQ_M6S23P5XMeGrEpxkYl0RV-wzUyvxeApV78Ht0bi4YaVU1nj2GBFXDN6GIU7M3S7i";
-        private string senderId = "336956340236";
+        private string serverKey = "key=AAAATnQpuAw:APA91bHS5jifdFJhW81Pim6l1YHXmqz-pS_OSu9sdeKC5jAoipP6AcFIEh7ltlSm43aY9zeVNPQ_M6S23P5XMeGrEpxkYl0RV-wzUyvxeApV78Ht0bi4YaVU1nj2GBFXDN6GIU7M3S7i";
+        private string senderId = "id=336956340236";
         private string webAddr = "https://fcm.googleapis.com/fcm/send";
-
+        private FirebaseMessaging messaging;
+        private HttpClient client;
+        private HttpResponseMessage response;
         [HttpPost("{DeviceToken}")]
-        public string SendNotification(string DeviceToken, [FromBody] string msg)
+        public async void SendNotificationAsync(string DeviceToken, Notification messages)
         {
-            Console.WriteLine("Device token ", DeviceToken);
-            var result = "-1";
-            var title = "From backend";
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(webAddr);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Headers.Add(string.Format("Authorization: key={0}", serverKey));
-            httpWebRequest.Headers.Add(string.Format("Sender: id={0}", senderId));
-            httpWebRequest.Method = "POST";
-
-            var payload = new
+            if (FirebaseApp.DefaultInstance is null)
             {
-                to = DeviceToken,
-                priority = "high",
-                content_available = true,
-                notification = new
+                var app = FirebaseApp.Create(new AppOptions()
                 {
-                    body = msg,
-                    title = title
+                    Credential = GoogleCredential.FromFile("C:\\Users\\adm\\Downloads\\service-account-file.json")
+                    .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
+                });
+                messaging = FirebaseMessaging.GetMessaging(app);
+            }
+            
+            messaging = FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance);
+
+            // See documentation on defining a message payload.
+            var message = new Message
+            {
+                Notification = new Notification()
+                {
+                    Title = messages.Title,
+                    Body = messages.Body,
                 },
+                Android = new AndroidConfig()
+                {
+                    TimeToLive = TimeSpan.FromHours(1),
+                    Notification = new AndroidNotification()
+                    {
+                        Icon = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+                        Color = "#f45342",
+                        Sound = "\\raw\\5191_pod-zvonok.ru__.mp3",
+                        ClickAction = "https://elite-service-92d53.web.app/"
+                    },
+                    
+                },
+                Apns = new ApnsConfig()
+                {
+                    Aps = new Aps()
+                    {
+                        Badge = 42,
+                    },
+                },
+               
+                Token = DeviceToken,
             };
-            var serializer = new JavaScriptSerializer();
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-            {
-                string json = serializer.Serialize(payload);
-                streamWriter.Write(json);
-                streamWriter.Flush();
-            }
-            Console.WriteLine(payload);
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-            {
-                result = streamReader.ReadToEnd();
-            }
-            return result;
+            Console.WriteLine(DeviceToken);
+            // Send a message to the device corresponding to the provided
+            // registration token.
+            // Response is a message ID string.
+            string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+            Console.WriteLine("Successfully sent message: " + response);
+
+           
         }
         /*public async void GetAuthFirebase(string phoneNumber)
         {
