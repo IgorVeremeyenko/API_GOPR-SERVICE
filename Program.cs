@@ -13,7 +13,7 @@ builder.Services.AddCors(options =>
         {
             builder
             .SetIsOriginAllowedToAllowWildcardSubdomains()
-            .WithOrigins("https://elite-service-92d53.web.app", "https://localhost:7214/", "*", "http://localhost:8080")            
+            .WithOrigins("https://elite-service-92d53.web.app", "https://localhost:7214/", "*", "http://localhost:4200")            
             .AllowAnyMethod()
             .AllowCredentials()
             .AllowAnyHeader()

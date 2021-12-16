@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using API_GOPR_SERVICE.Models;
 
 namespace API_GOPR_SERVICE.Models
 {
@@ -81,5 +82,7 @@ namespace API_GOPR_SERVICE.Models
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        public DbSet<Admins> Admins { get; set; }
     }
 }

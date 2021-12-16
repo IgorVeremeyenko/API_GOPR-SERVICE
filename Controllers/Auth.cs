@@ -3,8 +3,8 @@ using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -19,19 +19,9 @@ namespace API_GOPR_SERVICE.Controllers
         private FirebaseMessaging messaging;
         private HttpClient client;
         private HttpResponseMessage response;
-        [HttpPost("{DeviceToken}")]
-        public async void SendNotificationAsync(string DeviceToken, Notification messages)
+
+        private async void SendMessage(Notification messages, string DeviceToken)
         {
-            if (FirebaseApp.DefaultInstance is null)
-            {
-                var app = FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.FromFile("C:\\Users\\adm\\Downloads\\service-account-file.json")
-                    .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
-                });
-                messaging = FirebaseMessaging.GetMessaging(app);
-            }
-            
             messaging = FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance);
 
             // See documentation on defining a message payload.
@@ -42,25 +32,25 @@ namespace API_GOPR_SERVICE.Controllers
                     Title = messages.Title,
                     Body = messages.Body,
                     ImageUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-                    
+
                 },
                 Android = new AndroidConfig()
                 {
-                    
+
                     TimeToLive = TimeSpan.FromHours(1),
                     Notification = new AndroidNotification()
                     {
                         Icon = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
                         Color = "#f45342",
                         Sound = "/Resourses/zvonok.mp3"
-                        
+
                     },
                     Priority = Priority.High
-                    
+
                 },
                 Webpush = new()
                 {
-                    FcmOptions = new ()
+                    FcmOptions = new()
                     {
                         Link = "https://elite-service-92d53.web.app/"
                     },
@@ -71,9 +61,9 @@ namespace API_GOPR_SERVICE.Controllers
                     {
                         Badge = 42,
                     },
-                    
+
                 },
-               
+
                 Token = DeviceToken,
             };
             string jsonString = JsonSerializer.Serialize(message);
@@ -83,8 +73,44 @@ namespace API_GOPR_SERVICE.Controllers
             // Response is a message ID string.
             string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
             Console.WriteLine("Successfully sent message: " + response);
+        }
 
-           
+        [HttpPost("{token}")]
+        public async Task<string> SendNotificationAsync(string token, Notification messages)
+        {
+            if (FirebaseApp.DefaultInstance is null)
+            {
+                var app = FirebaseApp.Create(new AppOptions()
+                {
+                    Credential = GoogleCredential.FromFile("C:\\Users\\adm\\Documents\\key.json")
+                    .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
+                });
+                messaging = FirebaseMessaging.GetMessaging(app);
+            }
+            string numberAdmin = "+380500868023";
+            FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
+                    .VerifyIdTokenAsync(token);
+            string uid = decodedToken.Uid;
+            Console.WriteLine(uid);
+            //UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
+            string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);
+            Console.WriteLine(customToken);
+            return customToken;
+            // Verify the ID token first.
+            
+           /* object isAdmin;
+            if (decodedToken.Claims.TryGetValue("admin", out isAdmin))
+            {
+                if ((bool)isAdmin)
+                {
+                    Console.WriteLine("He is admin");
+                }
+                else
+                {
+                    Console.WriteLine("Not admin, and ", user.CustomClaims);
+                }
+            }
+*/
         }
         /*public async void GetAuthFirebase(string phoneNumber)
         {

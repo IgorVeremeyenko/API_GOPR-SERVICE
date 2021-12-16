@@ -15,17 +15,34 @@ namespace API_GOPR_SERVICE.Controllers
             _context = context;
         }
 
-        // GET ALL BY CLIENT(phone number)
+        // GET ALL CLIENTS
         [HttpGet]
-        public ActionResult<List<ClientsDevice>> GetClientsDevice(string phoneNumber)
+        public ActionResult<List<ClientsDevice>> GetClientsDevice()
         {
             var clientsDevice =  _context.ClientsDevices
                 .Include(c => c.Client)
-                .Include(d => d.Device)
-                .Where(c => c.Client.PhoneNumber == phoneNumber)
+                .Include(d => d.Device)                
                 .ToList();
 
             if (clientsDevice == null)
+            {
+                return NotFound();
+            }
+
+            return clientsDevice;
+        }
+
+        // GET ALL DEVICES BY CLIENT
+        [HttpGet("{phoneNumber}")]
+        public ActionResult<List<ClientsDevice>> GetClientsDevice(string phoneNumber)
+        {
+            var clientsDevice = _context.ClientsDevices
+                .Include(c => c.Client)
+                .Include(d => d.Device)
+                .Where(p => p.Client.PhoneNumber == phoneNumber)
+                .ToList();
+                
+            if (clientsDevice.Count < 1)
             {
                 return NotFound();
             }
@@ -38,6 +55,7 @@ namespace API_GOPR_SERVICE.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutClientsDevice(int id, ClientsDevice clientsDevice)
         {
+            
             if (id != clientsDevice.Id)
             {
                 return BadRequest();
