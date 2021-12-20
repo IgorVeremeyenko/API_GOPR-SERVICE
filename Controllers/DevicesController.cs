@@ -45,7 +45,7 @@ namespace API_GOPR_SERVICE.Controllers
             {
                 return BadRequest();
             }
-
+            device.DateToReturn = DateTime.Now;
             _context.Entry(device).State = EntityState.Modified;
 
             try
@@ -76,7 +76,9 @@ namespace API_GOPR_SERVICE.Controllers
                 .Where(c => c.Client.PhoneNumber == phoneNumber)
                 .Select(i => i.ClientId)
                 .FirstOrDefault();
+            device.DateToAdd = DateTime.Now;
             _context.Devices.Add(device);
+            
             await _context.SaveChangesAsync();
             _context.ClientsDevices.Add(new ClientsDevice()
             {

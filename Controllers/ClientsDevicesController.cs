@@ -19,6 +19,8 @@ namespace API_GOPR_SERVICE.Controllers
         [HttpGet]
         public ActionResult<List<ClientsDevice>> GetClientsDevice()
         {
+            /*var value = new RouteValueDictionary(new { phoneNumber = "+380564598231" });
+            return RedirectToAction("GetClientsDevice", value);*/
             var clientsDevice =  _context.ClientsDevices
                 .Include(c => c.Client)
                 .Include(d => d.Device)                
@@ -94,13 +96,14 @@ namespace API_GOPR_SERVICE.Controllers
             clientsDevice.Device = device;
             clientsDevice.ClientId = client.Id;
             clientsDevice.DeviceId= device.Id;
-            clientsDevice.Device.DateToAdd = new DateTime();
+            clientsDevice.Device.DateToAdd = DateTime.Now;
+            clientsDevice.Device.DateToReturn = DateTime.Now;
             _context.ClientsDevices.Add(clientsDevice);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetClientsDevice", new { id = clientsDevice.Id }, clientsDevice);
             
 
-        }
+        }        
 
         // DELETE: api/ClientsDevices/5
         [HttpDelete("{id}")]

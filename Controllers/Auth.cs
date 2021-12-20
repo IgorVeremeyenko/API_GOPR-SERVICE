@@ -82,7 +82,7 @@ namespace API_GOPR_SERVICE.Controllers
             {
                 var app = FirebaseApp.Create(new AppOptions()
                 {
-                    Credential = GoogleCredential.FromFile("C:\\Users\\adm\\Documents\\key.json")
+                    Credential = GoogleCredential.FromFile("C:\\Users\\Igor_Sergeyevich\\Documents\\key.json")
                     .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
                 });
                 messaging = FirebaseMessaging.GetMessaging(app);

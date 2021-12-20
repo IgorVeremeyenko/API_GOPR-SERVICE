@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using API_GOPR_SERVICE.Models;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace API_GOPR_SERVICE.Models
 {
@@ -68,8 +64,11 @@ namespace API_GOPR_SERVICE.Models
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.DateToAdd)
-                    .HasColumnType("date")
+                    .HasColumnType("datetime")
                     .HasColumnName("dateToAdd");
+                entity.Property(e => e.DateToReturn)
+                    .HasColumnType("datetime")
+                    .HasColumnName("dateToReturn");
 
                 entity.Property(e => e.DeviceName)
                     .HasMaxLength(500)
