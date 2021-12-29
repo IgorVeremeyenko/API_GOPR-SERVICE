@@ -40,14 +40,15 @@ namespace API_GOPR_SERVICE.Controllers
         {
             var clientsDevice = _context.ClientsDevices
                 .Include(c => c.Client)
-                .Include(d => d.Device)
+                .Include(d => d.Device)                 
                 .Where(p => p.Client.PhoneNumber == phoneNumber)
                 .ToList();
-                
             if (clientsDevice.Count < 1)
             {
                 return NotFound();
-            }
+            }          
+
+            
 
             return clientsDevice;
         }
@@ -90,8 +91,9 @@ namespace API_GOPR_SERVICE.Controllers
         public async Task<ActionResult<ClientsDevice>> PostClientsDevice(
             [FromBody]
             ClientsDevice clientsDevice, Client client, Device device)
-        {           
-           
+        {
+
+            Console.WriteLine(client.PhoneNumber);
             clientsDevice.Client = client;
             clientsDevice.Device = device;
             clientsDevice.ClientId = client.Id;

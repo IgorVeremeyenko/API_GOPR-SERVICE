@@ -33,9 +33,13 @@ namespace API_GOPR_SERVICE.Models
                     .HasMaxLength(200)
                     .HasColumnName("name");
 
+                entity.Property(e => e.FcmToken).HasColumnName("fcmToken");
+
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(50)
                     .HasColumnName("phoneNumber");
+
+                
             });
 
             modelBuilder.Entity<ClientsDevice>(entity =>
@@ -75,7 +79,7 @@ namespace API_GOPR_SERVICE.Models
                     .HasColumnName("deviceName");
 
                 entity.Property(e => e.Status).HasColumnName("status");
-            });
+            });            
 
             OnModelCreatingPartial(modelBuilder);
         }

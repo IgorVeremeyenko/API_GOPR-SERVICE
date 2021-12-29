@@ -1,4 +1,5 @@
-﻿using FirebaseAdmin;
+﻿using API_GOPR_SERVICE.Models;
+using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
@@ -19,7 +20,7 @@ namespace API_GOPR_SERVICE.Controllers
         private FirebaseMessaging messaging;
         private HttpClient client;
         private HttpResponseMessage response;
-
+        
         private async void SendMessage(Notification messages, string DeviceToken)
         {
             messaging = FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance);
@@ -76,7 +77,11 @@ namespace API_GOPR_SERVICE.Controllers
         }
 
         [HttpPost("{token}")]
-        public async Task<string> SendNotificationAsync(string token, Notification messages)
+       /* public Task<string> RegisterTokenForUser(string token)
+        {
+            var client 
+        }*/
+       /* public Task<string> SendNotificationAsync(string token, Notification messages)
         {
             if (FirebaseApp.DefaultInstance is null)
             {
@@ -87,15 +92,16 @@ namespace API_GOPR_SERVICE.Controllers
                 });
                 messaging = FirebaseMessaging.GetMessaging(app);
             }
-            string numberAdmin = "+380500868023";
-            FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
+            
+            *//*FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
                     .VerifyIdTokenAsync(token);
             string uid = decodedToken.Uid;
             Console.WriteLine(uid);
             //UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
-            string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);
-            Console.WriteLine(customToken);
-            return customToken;
+            string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);*/
+            /*Console.WriteLine(customToken);*//*
+            SendMessage(messages, token);
+            return Task.FromResult(token);*/
             // Verify the ID token first.
             
            /* object isAdmin;
@@ -111,7 +117,7 @@ namespace API_GOPR_SERVICE.Controllers
                 }
             }
 */
-        }
+        /*}*/
         /*public async void GetAuthFirebase(string phoneNumber)
         {
 
