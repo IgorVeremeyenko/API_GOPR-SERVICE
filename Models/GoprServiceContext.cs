@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using API_GOPR_SERVICE.Models;
 
 namespace API_GOPR_SERVICE.Models
 {
@@ -16,7 +17,8 @@ namespace API_GOPR_SERVICE.Models
         public virtual DbSet<Client> Clients { get; set; } = null!;
         public virtual DbSet<ClientsDevice> ClientsDevices { get; set; } = null!;
         public virtual DbSet<Device> Devices { get; set; } = null!;
-               
+        public virtual DbSet<Tokens> Token { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Client>(entity =>
@@ -33,7 +35,6 @@ namespace API_GOPR_SERVICE.Models
                     .HasMaxLength(200)
                     .HasColumnName("name");
 
-                entity.Property(e => e.FcmToken).HasColumnName("fcmToken");
 
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(50)
@@ -79,7 +80,20 @@ namespace API_GOPR_SERVICE.Models
                     .HasColumnName("deviceName");
 
                 entity.Property(e => e.Status).HasColumnName("status");
-            });            
+            });
+
+            modelBuilder.Entity<Tokens>(entity =>
+            {
+                entity.ToTable("tokens");
+                entity.Property(e => e.id).HasColumnName("id");
+                entity.Property(e => e.token)
+                .HasMaxLength(1000)
+                .HasColumnName("token");
+                entity.Property(e => e.phoneNumber)
+                .HasMaxLength(50)
+                .HasColumnName("phoneNumber");
+
+            });
 
             OnModelCreatingPartial(modelBuilder);
         }
@@ -87,5 +101,7 @@ namespace API_GOPR_SERVICE.Models
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
         public DbSet<Admins> Admins { get; set; }
+
+        public DbSet<API_GOPR_SERVICE.Models.Tokens> Tokens { get; set; }
     }
 }

@@ -1,11 +1,8 @@
-﻿using API_GOPR_SERVICE.Models;
-using FirebaseAdmin;
+﻿using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -20,108 +17,12 @@ namespace API_GOPR_SERVICE.Controllers
         private FirebaseMessaging messaging;
         private HttpClient client;
         private HttpResponseMessage response;
+
         
-        private async void SendMessage(Notification messages, string DeviceToken)
-        {
-            messaging = FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance);
-
-            // See documentation on defining a message payload.
-            var message = new Message
-            {
-                Notification = new Notification()
-                {
-                    Title = messages.Title,
-                    Body = messages.Body,
-                    ImageUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-
-                },
-                Android = new AndroidConfig()
-                {
-
-                    TimeToLive = TimeSpan.FromHours(1),
-                    Notification = new AndroidNotification()
-                    {
-                        Icon = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-                        Color = "#f45342",
-                        Sound = "/Resourses/zvonok.mp3"
-
-                    },
-                    Priority = Priority.High
-
-                },
-                Webpush = new()
-                {
-                    FcmOptions = new()
-                    {
-                        Link = "https://elite-service-92d53.web.app/"
-                    },
-                },
-                Apns = new ApnsConfig()
-                {
-                    Aps = new Aps()
-                    {
-                        Badge = 42,
-                    },
-
-                },
-
-                Token = DeviceToken,
-            };
-            string jsonString = JsonSerializer.Serialize(message);
-            Console.WriteLine(jsonString);
-            // Send a message to the device corresponding to the provided
-            // registration token.
-            // Response is a message ID string.
-            string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
-            Console.WriteLine("Successfully sent message: " + response);
-        }
-
-        [HttpPost("{token}")]
-       /* public Task<string> RegisterTokenForUser(string token)
-        {
-            var client 
-        }*/
-       /* public Task<string> SendNotificationAsync(string token, Notification messages)
+        [HttpPost]
+        public async void SendNotification(Notification message, string token)
         {
             if (FirebaseApp.DefaultInstance is null)
-            {
-                var app = FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.FromFile("C:\\Users\\Igor_Sergeyevich\\Documents\\key.json")
-                    .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
-                });
-                messaging = FirebaseMessaging.GetMessaging(app);
-            }
-            
-            *//*FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
-                    .VerifyIdTokenAsync(token);
-            string uid = decodedToken.Uid;
-            Console.WriteLine(uid);
-            //UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
-            string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);*/
-            /*Console.WriteLine(customToken);*//*
-            SendMessage(messages, token);
-            return Task.FromResult(token);*/
-            // Verify the ID token first.
-            
-           /* object isAdmin;
-            if (decodedToken.Claims.TryGetValue("admin", out isAdmin))
-            {
-                if ((bool)isAdmin)
-                {
-                    Console.WriteLine("He is admin");
-                }
-                else
-                {
-                    Console.WriteLine("Not admin, and ", user.CustomClaims);
-                }
-            }
-*/
-        /*}*/
-        /*public async void GetAuthFirebase(string phoneNumber)
-        {
-
-            if(FirebaseApp.DefaultInstance is null)
             {
                 const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
                 FirebaseApp.Create(new AppOptions()
@@ -129,18 +30,9 @@ namespace API_GOPR_SERVICE.Controllers
                     Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
                 });
             }
-            try
-            {
-
-                
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }*/
+            PushNotification notification = new PushNotification();
+            notification.SendMessage(message, token);
+        }
         [HttpGet("all users")]
         public async void GetAllUsersFirebase()
         {
@@ -186,7 +78,7 @@ namespace API_GOPR_SERVICE.Controllers
                 Console.WriteLine(e.Message); ;
             }
         }
-        [HttpPost]
+       /* [HttpPost]
         public async void CreateUser()
         {
             if (FirebaseApp.DefaultInstance is null)
@@ -209,7 +101,7 @@ namespace API_GOPR_SERVICE.Controllers
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(args);
             // See the UserRecord reference doc for the contents of userRecord.
             Console.WriteLine($"Successfully created new user: {userRecord.Uid}");
-        }
+        }*/
         [HttpPut]
         public async void UpdateUser(string uid)
         {
