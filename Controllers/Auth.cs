@@ -3,6 +3,8 @@ using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -19,26 +21,28 @@ namespace API_GOPR_SERVICE.Controllers
         private HttpResponseMessage response;
 
         
-        [HttpPost]
+        [HttpPost("{token}")]
         public async void SendNotification(Notification message, string token)
         {
             if (FirebaseApp.DefaultInstance is null)
             {
-                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
+                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\sites\\gopr-service\\jsons\\service-account-file.json";
+               
                 FirebaseApp.Create(new AppOptions()
                 {
-                    Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
+                    Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS)
                 });
+                
             }
             PushNotification notification = new PushNotification();
-            notification.SendMessage(message, token);
+            await notification.SendMessage(message, token);
         }
         [HttpGet("all users")]
         public async void GetAllUsersFirebase()
         {
             if (FirebaseApp.DefaultInstance is null)
             {
-                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
+                const string GOOGLE_APPLICATION_CREDENTIALS = "https://database.gopr-service.com.ua/json/service-account-file.json";
                 FirebaseApp.Create(new AppOptions()
                 {
                     Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
@@ -107,7 +111,7 @@ namespace API_GOPR_SERVICE.Controllers
         {
             if (FirebaseApp.DefaultInstance is null)
             {
-                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
+                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\igor\\Downloads\\service-account-file.json";
                 FirebaseApp.Create(new AppOptions()
                 {
                     Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
@@ -132,7 +136,7 @@ namespace API_GOPR_SERVICE.Controllers
         {
             if (FirebaseApp.DefaultInstance is null)
             {
-                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
+                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\igor\\Downloads\\service-account-file.json";
                 FirebaseApp.Create(new AppOptions()
                 {
                     Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),

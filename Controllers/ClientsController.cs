@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API_GOPR_SERVICE.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace API_GOPR_SERVICE.Controllers
 {

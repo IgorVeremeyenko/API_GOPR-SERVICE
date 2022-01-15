@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API_GOPR_SERVICE.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace API_GOPR_SERVICE.Controllers
 {
     [Route("api/[controller]")]
-    //[ApiController]
+    [ApiController]
     public class ClientsDevicesController : ControllerBase
     {
         private readonly GoprServiceContext _context;
@@ -89,23 +90,15 @@ namespace API_GOPR_SERVICE.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<ClientsDevice>> PostClientsDevice(
-            [FromBody]
-            ClientsDevice clientsDevice, Client client, Device device)
+           [FromBody] ClientsDevice clientsDevice)
         {
-
-            Console.WriteLine(client.PhoneNumber);
-            clientsDevice.Client = client;
-            clientsDevice.Device = device;
-            clientsDevice.ClientId = client.Id;
-            clientsDevice.DeviceId= device.Id;
             clientsDevice.Device.DateToAdd = DateTime.Now;
             clientsDevice.Device.DateToReturn = DateTime.Now;
             _context.ClientsDevices.Add(clientsDevice);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetClientsDevice", new { id = clientsDevice.Id }, clientsDevice);
-            
 
-        }        
+        }
 
         // DELETE: api/ClientsDevices/5
         [HttpDelete("{id}")]

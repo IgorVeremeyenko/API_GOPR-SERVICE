@@ -1,5 +1,6 @@
 ﻿using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace API_GOPR_SERVICE
@@ -7,7 +8,7 @@ namespace API_GOPR_SERVICE
     public class PushNotification
     {      
 
-        public async void SendMessage(Notification msg, string DeviceToken)
+        public async Task<string> SendMessage(Notification msg, string DeviceToken)
         {
             var messaging = FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance);
 
@@ -33,14 +34,17 @@ namespace API_GOPR_SERVICE
 
                     },
                     Priority = Priority.High
-
+                    
                 },
+               
                 Webpush = new()
                 {
                     FcmOptions = new()
                     {
-                        Link = "https://elite-service-92d53.web.app/"
+                        Link = "https://workshop.gopr-service.com.ua",
+                        
                     },
+                    
                 },
                 Apns = new ApnsConfig()
                 {
@@ -50,15 +54,15 @@ namespace API_GOPR_SERVICE
                     },
 
                 },
-
+                
                 Token = DeviceToken,
             };
             string jsonString = JsonSerializer.Serialize(message);
             // Send a message to the device corresponding to the provided
             // registration token.
             // Response is a message ID string.
-            string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
-            Console.WriteLine("Successfully sent message: " + response);
+            return FirebaseMessaging.DefaultInstance.SendAsync(message).Result;
+            
         }
     }
 }

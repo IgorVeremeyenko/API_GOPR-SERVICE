@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API_GOPR_SERVICE.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -70,6 +71,7 @@ namespace API_GOPR_SERVICE.Controllers
         // POST: api/Devices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        
         public async Task<ActionResult<Device>> PostDevice(Device device, string phoneNumber)
         {
             int id = _context.ClientsDevices

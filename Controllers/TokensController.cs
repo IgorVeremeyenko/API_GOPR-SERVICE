@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API_GOPR_SERVICE.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace API_GOPR_SERVICE.Controllers
 {
@@ -26,7 +27,7 @@ namespace API_GOPR_SERVICE.Controllers
         [HttpGet("{phoneNumber}")]
         public async Task<ActionResult<Tokens>> GetTokens(string phoneNumber)
         {
-            var tokens = await _context.Tokens.FindAsync(phoneNumber);
+            var tokens = await _context.Tokens.FirstOrDefaultAsync(p => p.phoneNumber == phoneNumber);
 
             if (tokens == null)
             {
@@ -70,6 +71,7 @@ namespace API_GOPR_SERVICE.Controllers
         // POST: api/Tokens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        
         public async Task<ActionResult<Tokens>> PostTokens(Tokens tokens)
         {
             _context.Tokens.Add(tokens);
