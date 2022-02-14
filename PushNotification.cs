@@ -19,8 +19,7 @@ namespace API_GOPR_SERVICE
                 {
                     Title = msg.Title,
                     Body = msg.Body,
-                    ImageUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-
+                    ImageUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",                    
                 },
                 Android = new AndroidConfig()
                 {

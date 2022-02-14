@@ -81,7 +81,7 @@ namespace API_GOPR_SERVICE.Controllers
             device.DateToAdd = DateTime.Now;
             _context.Devices.Add(device);
             
-            await _context.SaveChangesAsync();
+            //await _context.SaveChangesAsync();
             _context.ClientsDevices.Add(new ClientsDevice()
             {
                 ClientId = id,

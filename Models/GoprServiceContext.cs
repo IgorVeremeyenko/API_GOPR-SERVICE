@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using API_GOPR_SERVICE.Models;
 
 namespace API_GOPR_SERVICE.Models
 {
@@ -18,6 +17,7 @@ namespace API_GOPR_SERVICE.Models
         public virtual DbSet<ClientsDevice> ClientsDevices { get; set; } = null!;
         public virtual DbSet<Device> Devices { get; set; } = null!;
         public virtual DbSet<Tokens> Token { get; set; } = null!;
+        public virtual DbSet<Notifications> Notifications { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,7 +40,7 @@ namespace API_GOPR_SERVICE.Models
                     .HasMaxLength(50)
                     .HasColumnName("phoneNumber");
 
-                
+
             });
 
             modelBuilder.Entity<ClientsDevice>(entity =>
@@ -93,6 +93,33 @@ namespace API_GOPR_SERVICE.Models
                 .HasMaxLength(50)
                 .HasColumnName("phoneNumber");
 
+            });
+
+            modelBuilder.Entity<Notifications>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.Body)
+                    .HasMaxLength(500)
+                    .HasColumnName("body");
+
+                entity.Property(e => e.ClientId).HasColumnName("clientID");
+
+                entity.Property(e => e.DateToAdd)
+                    .HasColumnType("datetime")
+                    .HasColumnName("dateToAdd");
+
+                entity.Property(e => e.IsRead).HasColumnName("isRead");
+
+                entity.Property(e => e.Title)
+                    .HasMaxLength(500)
+                    .HasColumnName("title");
+
+                entity.HasOne(d => d.Client)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.ClientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Notifications_Clients");
             });
 
             OnModelCreatingPartial(modelBuilder);
