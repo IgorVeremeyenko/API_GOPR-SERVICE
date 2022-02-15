@@ -70,13 +70,15 @@ namespace API_GOPR_SERVICE.Controllers
 
         // POST: api/Notifications
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("{phoneNumber}")]
+        [HttpPost]
         public async Task<ActionResult<Notifications>> PostNotifications(Notifications notifications, string phoneNumber)
         {
             int id = _context.Clients
                 .Where(c => c.PhoneNumber == phoneNumber)
                 .Select(i => i.Id)
                 .FirstOrDefault();
+            Client client = _context.Clients.FirstOrDefault(c => c.Id == id);
+            notifications.Client = client;
             notifications.DateToAdd = DateTime.Now;
             _context.Notifications.Add(notifications);
             await _context.SaveChangesAsync();

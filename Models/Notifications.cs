@@ -12,7 +12,6 @@ namespace API_GOPR_SERVICE.Models
         public string Body { get; set; } = null!;
         public bool IsRead { get; set; }
         public int ClientId { get; set; }
-        [JsonIgnore]
-        public virtual Client Client { get; set; } = null!;
+        public virtual Client Client { get; set; }
     }
 }
