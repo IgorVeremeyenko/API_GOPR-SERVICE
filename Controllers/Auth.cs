@@ -20,7 +20,7 @@ namespace API_GOPR_SERVICE.Controllers
         private HttpClient client;
         private HttpResponseMessage response;
 
-        private async void SendMessage(Notification messages, string DeviceToken)
+        private async Task<string> SendMessage(Notification messages, string DeviceToken)
         {
             messaging = FirebaseMessaging.GetMessaging(FirebaseApp.DefaultInstance);
 
@@ -31,7 +31,7 @@ namespace API_GOPR_SERVICE.Controllers
                 {
                     Title = messages.Title,
                     Body = messages.Body,
-                    ImageUrl = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+                    ImageUrl = "https://database.gopr-service.com.ua/jsons/logo.png",
 
                 },
                 Android = new AndroidConfig()
@@ -40,7 +40,7 @@ namespace API_GOPR_SERVICE.Controllers
                     TimeToLive = TimeSpan.FromHours(1),
                     Notification = new AndroidNotification()
                     {
-                        Icon = "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+                        Icon = "https://database.gopr-service.com.ua/jsons/logo.png",
                         Color = "#f45342",
                         Sound = "/Resourses/zvonok.mp3"
 
@@ -52,7 +52,7 @@ namespace API_GOPR_SERVICE.Controllers
                 {
                     FcmOptions = new()
                     {
-                        Link = "https://elite-service-92d53.web.app/"
+                        Link = "https://database.gopr-service.com.ua/"
                     },
                 },
                 Apns = new ApnsConfig()
@@ -68,11 +68,22 @@ namespace API_GOPR_SERVICE.Controllers
             };
             string jsonString = JsonSerializer.Serialize(message);
             Console.WriteLine(jsonString);
+            string result;
             // Send a message to the device corresponding to the provided
             // registration token.
             // Response is a message ID string.
-            string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
-            Console.WriteLine("Successfully sent message: " + response);
+            try
+            {
+                string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+                result = response;
+
+            }
+            catch (Exception e)
+            {
+
+                result = e.Message;
+            }
+            return JsonSerializer.Serialize(result);
         }
 
         [HttpPost("{token}")]
@@ -82,59 +93,18 @@ namespace API_GOPR_SERVICE.Controllers
             {
                 var app = FirebaseApp.Create(new AppOptions()
                 {
-                    Credential = GoogleCredential.FromFile("C:\\Users\\Igor_Sergeyevich\\Documents\\key.json")
+                    Credential = GoogleCredential.FromFile("C:\\sites\\gopr-service\\jsons\\service-account-file.json")
                     .CreateScoped("https://www.googleapis.com/auth/firebase.messaging")
                 });
                 messaging = FirebaseMessaging.GetMessaging(app);
-            }
-            string numberAdmin = "+380500868023";
-            FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance
-                    .VerifyIdTokenAsync(token);
-            string uid = decodedToken.Uid;
-            Console.WriteLine(uid);
-            //UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(uid);
-            string customToken = await FirebaseAuth.DefaultInstance.CreateCustomTokenAsync(uid);
-            Console.WriteLine(customToken);
-            return customToken;
-            // Verify the ID token first.
+            }            
             
-           /* object isAdmin;
-            if (decodedToken.Claims.TryGetValue("admin", out isAdmin))
-            {
-                if ((bool)isAdmin)
-                {
-                    Console.WriteLine("He is admin");
-                }
-                else
-                {
-                    Console.WriteLine("Not admin, and ", user.CustomClaims);
-                }
-            }
-*/
+            return await SendMessage(messages, token);
+            
+            // Verify the ID token first.
+           
         }
-        /*public async void GetAuthFirebase(string phoneNumber)
-        {
-
-            if(FirebaseApp.DefaultInstance is null)
-            {
-                const string GOOGLE_APPLICATION_CREDENTIALS = "C:\\Users\\adm\\Downloads\\service-account-file.json";
-                FirebaseApp.Create(new AppOptions()
-                {
-                    Credential = GoogleCredential.FromFile(GOOGLE_APPLICATION_CREDENTIALS),
-                });
-            }
-            try
-            {
-
-                
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }*/
+        
         [HttpGet("all users")]
         public async void GetAllUsersFirebase()
         {
