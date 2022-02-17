@@ -48,15 +48,23 @@ namespace API_GOPR_SERVICE.Models
 
                 entity.Property(e => e.DeviceId).HasColumnName("deviceID");
 
+                entity.Property(e => e.NotificationId).HasColumnName("notificationID");
+
                 entity.HasOne(d => d.Client)
                     .WithMany(p => p.ClientsDevices)
                     .HasForeignKey(d => d.ClientId)
-                    .HasConstraintName("FK_ClientsDevices_Clients");
+                    .HasConstraintName("FK_ClientsDevices_clients");
 
                 entity.HasOne(d => d.Device)
                     .WithMany(p => p.ClientsDevices)
                     .HasForeignKey(d => d.DeviceId)
-                    .HasConstraintName("FK_ClientsDevices_Devices");
+                    .HasConstraintName("FK_ClientsDevices_devices");
+
+                entity.HasOne(d => d.Notification)
+                    .WithMany(p => p.ClientsDevices)
+                    .HasForeignKey(d => d.NotificationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ClientsDevices_Notifications");
             });
 
             modelBuilder.Entity<Device>(entity =>
@@ -100,8 +108,6 @@ namespace API_GOPR_SERVICE.Models
                     .HasMaxLength(500)
                     .HasColumnName("body");
 
-                entity.Property(e => e.ClientId).HasColumnName("clientID");
-
                 entity.Property(e => e.DateToAdd)
                     .HasColumnType("datetime")
                     .HasColumnName("dateToAdd");
@@ -111,12 +117,6 @@ namespace API_GOPR_SERVICE.Models
                 entity.Property(e => e.Title)
                     .HasMaxLength(500)
                     .HasColumnName("title");
-
-                entity.HasOne(d => d.Client)
-                    .WithMany(p => p.Notifications)
-                    .HasForeignKey(d => d.ClientId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Notifications_Clients");
             });
 
             OnModelCreatingPartial(modelBuilder);

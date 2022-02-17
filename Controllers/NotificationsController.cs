@@ -24,9 +24,15 @@ namespace API_GOPR_SERVICE.Controllers
         }
 
         // GET: api/Notifications/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Notifications>> GetNotifications(int id)
+        [HttpGet("{phoneNumber}")]
+        public async Task<ActionResult<Notifications>> GetNotifications(string phoneNumber)
         {
+            int? v = _context.ClientsDevices
+                            .Where(i => i!.Client.PhoneNumber == phoneNumber)
+                            .Select(p => p!.NotificationId)
+                            .FirstOrDefault();
+            int id = (int)v;
+
             var notifications = await _context.Notifications.FindAsync(id);
 
             if (notifications == null)
@@ -71,14 +77,13 @@ namespace API_GOPR_SERVICE.Controllers
         // POST: api/Notifications
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Notifications>> PostNotifications(Notifications notifications, string phoneNumber)
+        public async Task<ActionResult<Notifications>> PostNotifications([FromBody]Notifications notifications, string phoneNumber)
         {
             int id = _context.Clients
                 .Where(c => c.PhoneNumber == phoneNumber)
                 .Select(i => i.Id)
                 .FirstOrDefault();
             Client client = _context.Clients.FirstOrDefault(c => c.Id == id);
-            notifications.Client = client;
             notifications.DateToAdd = DateTime.Now;
             _context.Notifications.Add(notifications);
             await _context.SaveChangesAsync();

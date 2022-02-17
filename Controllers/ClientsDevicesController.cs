@@ -23,7 +23,7 @@ namespace API_GOPR_SERVICE.Controllers
             return RedirectToAction("GetClientsDevice", value);*/
             var clientsDevice =  _context.ClientsDevices
                 .Include(c => c.Client)
-                .Include(d => d.Device)                
+                .Include(d => d.Device)
                 .ToList();
 
             if (clientsDevice == null)
@@ -86,23 +86,33 @@ namespace API_GOPR_SERVICE.Controllers
 
         // POST: api/ClientsDevices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("PostClients")]
         public async Task<ActionResult<ClientsDevice>> PostClientsDevice(
-            [FromBody]
-            ClientsDevice clientsDevice, Client client, Device device)
-        {           
-           
+            
+            Client client, Device device)
+        {
+            _context.Clients.Add(client);
+            await _context.SaveChangesAsync();
+
+            _context.Devices.Add(device);
+            await _context.SaveChangesAsync();
+            
+            ClientsDevice clientsDevice = new();
             clientsDevice.Client = client;
             clientsDevice.Device = device;
             clientsDevice.ClientId = client.Id;
-            clientsDevice.DeviceId= device.Id;
+            clientsDevice.DeviceId = device.Id;
+            clientsDevice.Notification = null;
+            /*clientsDevice.Notification = new Notifications
+            {
+                DateToAdd = DateTime.Now
+            };*/
             clientsDevice.Device.DateToAdd = DateTime.Now;
             clientsDevice.Device.DateToReturn = DateTime.Now;
             _context.ClientsDevices.Add(clientsDevice);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetClientsDevice", new { id = clientsDevice.Id }, clientsDevice);
             
-
         }        
 
         // DELETE: api/ClientsDevices/5
