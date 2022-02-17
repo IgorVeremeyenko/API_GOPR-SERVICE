@@ -25,22 +25,26 @@ namespace API_GOPR_SERVICE.Controllers
 
         // GET: api/Notifications/5
         [HttpGet("{phoneNumber}")]
-        public async Task<ActionResult<Notifications>> GetNotifications(string phoneNumber)
+        public async Task<ActionResult<IEnumerable<Notifications>>> GetNotifications(string phoneNumber)
         {
-            int? v = _context.ClientsDevices
-                            .Where(i => i!.Client.PhoneNumber == phoneNumber)
-                            .Select(p => p!.NotificationId)
-                            .FirstOrDefault();
-            int id = (int)v;
+            int clientId = _context.Clients
+                .Where(p => p.PhoneNumber == phoneNumber)
+                .Select(i => i.Id)
+                .FirstOrDefault();
 
-            var notifications = await _context.Notifications.FindAsync(id);
+            var notifications = await _context.Notifications
+                .Include(c => c.Client)
+                .Where(p => p.ClientId == clientId)
+                .ToListAsync();
+
 
             if (notifications == null)
             {
                 return NotFound();
             }
 
-            return notifications;
+            return notifications;            
+
         }
 
         // PUT: api/Notifications/5
@@ -80,13 +84,20 @@ namespace API_GOPR_SERVICE.Controllers
         public async Task<ActionResult<Notifications>> PostNotifications([FromBody]Notifications notifications, string phoneNumber)
         {
             int id = _context.Clients
-                .Where(c => c.PhoneNumber == phoneNumber)
+                .Where(p => p.PhoneNumber == phoneNumber)
                 .Select(i => i.Id)
                 .FirstOrDefault();
-            Client client = _context.Clients.FirstOrDefault(c => c.Id == id);
+            Client client = await _context.Clients.FindAsync(id);
+            if (notifications == null)
+            {
+                return NotFound();
+            }
+            notifications.Client = client;
+            notifications.ClientId = id;
             notifications.DateToAdd = DateTime.Now;
             _context.Notifications.Add(notifications);
             await _context.SaveChangesAsync();
+
 
             return CreatedAtAction("GetNotifications", new { id = notifications.Id }, notifications);
         }

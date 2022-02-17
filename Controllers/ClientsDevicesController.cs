@@ -86,27 +86,22 @@ namespace API_GOPR_SERVICE.Controllers
 
         // POST: api/ClientsDevices
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("PostClients")]
+        [HttpPost]
         public async Task<ActionResult<ClientsDevice>> PostClientsDevice(
             
-            Client client, Device device)
+            [FromBody] ClientAndDevice clientAndDevice)
         {
-            _context.Clients.Add(client);
+            _context.Clients.Add(clientAndDevice.Client);
             await _context.SaveChangesAsync();
 
-            _context.Devices.Add(device);
+            _context.Devices.Add(clientAndDevice.Device);
             await _context.SaveChangesAsync();
             
             ClientsDevice clientsDevice = new();
-            clientsDevice.Client = client;
-            clientsDevice.Device = device;
-            clientsDevice.ClientId = client.Id;
-            clientsDevice.DeviceId = device.Id;
-            clientsDevice.Notification = null;
-            /*clientsDevice.Notification = new Notifications
-            {
-                DateToAdd = DateTime.Now
-            };*/
+            clientsDevice.Client = clientAndDevice.Client;
+            clientsDevice.Device = clientAndDevice.Device;
+            clientsDevice.ClientId = clientAndDevice.Client.Id;
+            clientsDevice.DeviceId = clientAndDevice.Device.Id;
             clientsDevice.Device.DateToAdd = DateTime.Now;
             clientsDevice.Device.DateToReturn = DateTime.Now;
             _context.ClientsDevices.Add(clientsDevice);
